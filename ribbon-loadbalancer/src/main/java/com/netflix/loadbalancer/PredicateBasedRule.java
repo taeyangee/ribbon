@@ -19,7 +19,7 @@ package com.netflix.loadbalancer;
 
 import com.google.common.base.Optional;
 
-/**
+/** 一个框架Rule,把真正的选择逻辑延迟到getPredicate
  * A rule which delegates the server filtering logic to an instance of {@link AbstractServerPredicate}.
  * After filtering, a server is returned from filtered list in a round robin fashion.
  * 

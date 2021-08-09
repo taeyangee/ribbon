@@ -81,12 +81,12 @@ public class AvailabilityFilteringRule extends PredicateBasedRule {
     @Override
     public Server choose(Object key) {
         int count = 0;
-        Server server = roundRobinRule.choose(key);
+        Server server = roundRobinRule.choose(key);  /* roundRobinRule先选 */
         while (count++ <= 10) {
-            if (predicate.apply(new PredicateKey(server))) {
+            if (predicate.apply(new PredicateKey(server))) { /* PredicateKey做判定*/
                 return server;
             }
-            server = roundRobinRule.choose(key);
+            server = roundRobinRule.choose(key); /* predicate不满意，在重选 */
         }
         return super.choose(key);
     }

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
+/** 轮训
  * The most well known and basic load balancing strategy, i.e. Round Robin Rule.
  *
  * @author stonse
@@ -67,7 +67,7 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
                 return null;
             }
 
-            int nextServerIndex = incrementAndGetModulo(serverCount);
+            int nextServerIndex = incrementAndGetModulo(serverCount); /* 轮询 */
             server = allServers.get(nextServerIndex);
 
             if (server == null) {

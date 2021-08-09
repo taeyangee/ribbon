@@ -57,7 +57,7 @@ public class RandomRule extends AbstractLoadBalancerRule {
                 return null;
             }
 
-            int index = chooseRandomInt(serverCount);
+            int index = chooseRandomInt(serverCount); /* 随机一下 */
             server = upList.get(index);
 
             if (server == null) {

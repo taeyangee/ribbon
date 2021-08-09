@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
+/** 基于轮训的ServerList更新器
  * A default strategy for the dynamic server list updater to update.
  * (refactored and moved here from {@link com.netflix.loadbalancer.DynamicServerListLoadBalancer})
  *
@@ -24,8 +24,8 @@ public class PollingServerListUpdater implements ServerListUpdater {
 
     private static final Logger logger = LoggerFactory.getLogger(PollingServerListUpdater.class);
 
-    private static long LISTOFSERVERS_CACHE_UPDATE_DELAY = 1000; // msecs;
-    private static int LISTOFSERVERS_CACHE_REPEAT_INTERVAL = 30 * 1000; // msecs;
+    private static long LISTOFSERVERS_CACHE_UPDATE_DELAY = 1000; // msecs; 启动延时：1s
+    private static int LISTOFSERVERS_CACHE_REPEAT_INTERVAL = 30 * 1000; // msecs; 更新周期:10s
 
     private static class LazyHolder {
         private final static String CORE_THREAD = "DynamicServerListLoadBalancer.ThreadPoolSize";
@@ -80,12 +80,12 @@ public class PollingServerListUpdater implements ServerListUpdater {
     }
 
 
-    private final AtomicBoolean isActive = new AtomicBoolean(false);
+    private final AtomicBoolean isActive = new AtomicBoolean(false); /* 限制 重复启动 */
     private volatile long lastUpdated = System.currentTimeMillis();
     private final long initialDelayMs;
     private final long refreshIntervalMs;
 
-    private volatile ScheduledFuture<?> scheduledFuture;
+    private volatile ScheduledFuture<?> scheduledFuture; /* 周期任务 句柄 */
 
     public PollingServerListUpdater() {
         this(LISTOFSERVERS_CACHE_UPDATE_DELAY, LISTOFSERVERS_CACHE_REPEAT_INTERVAL);
@@ -113,7 +113,7 @@ public class PollingServerListUpdater implements ServerListUpdater {
                         return;
                     }
                     try {
-                        updateAction.doUpdate();
+                        updateAction.doUpdate(); /* 主体逻辑： updateAction , 这里是 */
                         lastUpdated = System.currentTimeMillis();
                     } catch (Exception e) {
                         logger.warn("Failed one update cycle", e);

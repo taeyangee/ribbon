@@ -64,7 +64,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * else if (random_number between 81 &amp; 100) {send request to D;}
  * <p>
  * When there is not enough statistics gathered for the servers, this rule
- * will fall back to use {@link RoundRobinRule}. 
+ * will fall back to use {@link RoundRobinRule}.   没有足够信息支持， 就回退成RoundRobinRule
  * @author stonse
  */
 public class WeightedResponseTimeRule extends RoundRobinRule {
@@ -88,7 +88,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
     
     public static final int DEFAULT_TIMER_INTERVAL = 30 * 1000;
     
-    private int serverWeightTaskTimerInterval = DEFAULT_TIMER_INTERVAL;
+    private int serverWeightTaskTimerInterval = DEFAULT_TIMER_INTERVAL; /* 权重更新周期*/
 
     private static final Logger logger = LoggerFactory.getLogger(WeightedResponseTimeRule.class);
     
@@ -202,7 +202,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
                     }
                 }
 
-                server = allList.get(serverIndex);
+                server = allList.get(serverIndex); /* 权重越高，插入allList越多次，中奖概率就越高 */
             }
 
             if (server == null) {
@@ -221,7 +221,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
         return server;
     }
 
-    class DynamicServerWeightTask extends TimerTask {
+    class DynamicServerWeightTask extends TimerTask { /* 权重重算 */
         public void run() {
             ServerWeight serverWeight = new ServerWeight();
             try {
@@ -257,7 +257,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
                 for (Server server : nlb.getAllServers()) {
                     // this will automatically load the stats if not in cache
                     ServerStats ss = stats.getSingleServerStat(server);
-                    totalResponseTime += ss.getResponseTimeAvg();
+                    totalResponseTime += ss.getResponseTimeAvg(); /* 所有实例的平均响应时长总和 */
                 }
                 // weight for each server is (sum of responseTime of all servers - responseTime)
                 // so that the longer the response time, the less the weight and the less likely to be chosen
@@ -267,7 +267,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
                 List<Double> finalWeights = new ArrayList<Double>();
                 for (Server server : nlb.getAllServers()) {
                     ServerStats ss = stats.getSingleServerStat(server);
-                    double weight = totalResponseTime - ss.getResponseTimeAvg();
+                    double weight = totalResponseTime - ss.getResponseTimeAvg(); /* 占比越小， 说明该实例响应越快， 比重越大 */
                     weightSoFar += weight;
                     finalWeights.add(weightSoFar);   
                 }

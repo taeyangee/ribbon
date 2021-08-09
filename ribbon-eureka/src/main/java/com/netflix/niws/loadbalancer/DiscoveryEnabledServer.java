@@ -31,7 +31,7 @@ import com.netflix.loadbalancer.Server;
 @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "EQ_DOESNT_OVERRIDE_EQUALS")
 public class DiscoveryEnabledServer extends Server{
 
-    private final InstanceInfo instanceInfo;
+    private final InstanceInfo instanceInfo; /* 带上了ek的实例信息 */
     private final MetaInfo serviceInfo;
 
     public DiscoveryEnabledServer(final InstanceInfo instanceInfo, boolean useSecurePort) {

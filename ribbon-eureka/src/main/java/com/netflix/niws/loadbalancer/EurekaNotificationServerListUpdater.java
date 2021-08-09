@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
+/** 基于ek-client监听基于的serviceList的更新器
  * A server list updater for the {@link com.netflix.loadbalancer.DynamicServerListLoadBalancer} that
  * utilizes eureka's event listener to trigger LB cache updates.
  *
@@ -121,7 +121,7 @@ public class EurekaNotificationServerListUpdater implements ServerListUpdater {
         if (isActive.compareAndSet(false, true)) {
             this.updateListener = new EurekaEventListener() {
                 @Override
-                public void onEvent(EurekaEvent event) {
+                public void onEvent(EurekaEvent event) { /* 构造ek监听器，只关注 CacheRefreshedEvent*/
                     if (event instanceof CacheRefreshedEvent) {
                         if (!updateQueued.compareAndSet(false, true)) {  // if an update is already queued
                             logger.info("an update action is already queued, returning as no-op");

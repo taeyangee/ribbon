@@ -75,24 +75,24 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
 
     @Monitor(name = PREFIX + "AllServerList", type = DataSourceType.INFORMATIONAL)
     protected volatile List<Server> allServerList = Collections
-            .synchronizedList(new ArrayList<Server>());
+            .synchronizedList(new ArrayList<Server>()); /* 所有server */
     @Monitor(name = PREFIX + "UpServerList", type = DataSourceType.INFORMATIONAL)
     protected volatile List<Server> upServerList = Collections
-            .synchronizedList(new ArrayList<Server>());
+            .synchronizedList(new ArrayList<Server>()); /* 在线server */
 
-    protected ReadWriteLock allServerLock = new ReentrantReadWriteLock();
-    protected ReadWriteLock upServerLock = new ReentrantReadWriteLock();
+    protected ReadWriteLock allServerLock = new ReentrantReadWriteLock(); /* allServerList 并发控制*/
+    protected ReadWriteLock upServerLock = new ReentrantReadWriteLock(); /* upServerList 并发控制*/
 
     protected String name = DEFAULT_NAME;
-
-    protected Timer lbTimer = null;
+    /* ----- ping 相关变量 -----*/
+    protected Timer lbTimer = null; /* 配合PingTask */
     protected int pingIntervalSeconds = 10;
     protected int maxTotalPingTimeSeconds = 5;
     protected Comparator<Server> serverComparator = new ServerComparator();
 
     protected AtomicBoolean pingInProgress = new AtomicBoolean(false);
 
-    protected LoadBalancerStats lbStats;
+    protected LoadBalancerStats lbStats; /*统计项：可以为server选择提供依据*/
 
     private volatile Counter counter = Monitors.newCounter("LoadBalancer_ChooseServer");
 
@@ -102,9 +102,9 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     
     private IClientConfig config;
     
-    private List<ServerListChangeListener> changeListeners = new CopyOnWriteArrayList<ServerListChangeListener>();
+    private List<ServerListChangeListener> changeListeners = new CopyOnWriteArrayList<ServerListChangeListener>(); /*  server 监听器 */
 
-    private List<ServerStatusChangeListener> serverStatusListeners = new CopyOnWriteArrayList<ServerStatusChangeListener>();
+    private List<ServerStatusChangeListener> serverStatusListeners = new CopyOnWriteArrayList<ServerStatusChangeListener>(); /* server状态监听器 */
 
     /**
      * Default constructor which sets name as "default", sets null ping, and
@@ -656,7 +656,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
      * @author stonse
      *
      */
-    class Pinger {
+    class Pinger { /* ping task真正的业务逻辑 */
 
         private final IPingStrategy pingerStrategy;
 

@@ -160,11 +160,11 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
             return new ArrayList<DiscoveryEnabledServer>();
         }
 
-        EurekaClient eurekaClient = eurekaClientProvider.get();
+        EurekaClient eurekaClient = eurekaClientProvider.get(); /* 拿到ek-client */
         if (vipAddresses!=null){
             for (String vipAddress : vipAddresses.split(",")) {
                 // if targetRegion is null, it will be interpreted as the same region of client
-                List<InstanceInfo> listOfInstanceInfo = eurekaClient.getInstancesByVipAddress(vipAddress, isSecure, targetRegion);
+                List<InstanceInfo> listOfInstanceInfo = eurekaClient.getInstancesByVipAddress(vipAddress, isSecure, targetRegion); /* 根据服务名称，从ek-client的本地注册表，拿到一组服务实例*/
                 for (InstanceInfo ii : listOfInstanceInfo) {
                     if (ii.getStatus().equals(InstanceStatus.UP)) {
 
@@ -185,11 +185,11 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
                             }
                         }
 
-                        DiscoveryEnabledServer des = createServer(ii, isSecure, shouldUseIpAddr);
+                        DiscoveryEnabledServer des = createServer(ii, isSecure, shouldUseIpAddr); /* 包裹一下 */
                         serverList.add(des);
                     }
                 }
-                if (serverList.size()>0 && prioritizeVipAddressBasedServers){
+                if (serverList.size()>0 && prioritizeVipAddressBasedServers){ /* 如果配置了主vip：如果能找到实例，后面就不找了*/
                     break; // if the current vipAddress has servers, we dont use subsequent vipAddress based servers
                 }
             }

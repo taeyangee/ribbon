@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * changed at Runtime. It also contains facilities wherein the list of servers
  * can be passed through a Filter criteria to filter out servers that do not
  * meet the desired criteria.
- * 
+ * 1. servers可以来自动态数据源；2. 有Filter基础设施，支持按照特定规则遴选server
  * @author stonse
  * 
  */
@@ -52,7 +52,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     // to keep track of modification of server lists
     protected AtomicBoolean serverListUpdateInProgress = new AtomicBoolean(false);
 
-    volatile ServerList<T> serverListImpl;
+    volatile ServerList<T> serverListImpl; /* 默认实现是 DomainExtractingServerList， 整合了ek */
 
     volatile ServerListFilter<T> filter;
 
@@ -61,9 +61,9 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
         public void doUpdate() {
             updateListOfServers();
         }
-    };
+    }; /* 定时更新的主体runner，  */
 
-    protected volatile ServerListUpdater serverListUpdater;
+    protected volatile ServerListUpdater serverListUpdater; /* 默认实现是PollingServiceListUpdater,一个定时空壳，配合updateAction使用 */
 
     public DynamicServerListLoadBalancer() {
         super();
@@ -153,7 +153,7 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     
     @Override
     public void setServersList(List lsrv) {
-        super.setServersList(lsrv);
+        super.setServersList(lsrv); /* 更新实例数据表  */
         List<T> serverList = (List<T>) lsrv;
         Map<String, List<Server>> serversInZones = new HashMap<String, List<Server>>();
         for (Server server : serverList) {
@@ -237,12 +237,12 @@ public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBal
     public void updateListOfServers() {
         List<T> servers = new ArrayList<T>();
         if (serverListImpl != null) {
-            servers = serverListImpl.getUpdatedListOfServers();
+            servers = serverListImpl.getUpdatedListOfServers(); /* 从动态源中拿到实例列表*/
             LOGGER.debug("List of Servers for {} obtained from Discovery client: {}",
                     getIdentifier(), servers);
 
             if (filter != null) {
-                servers = filter.getFilteredListOfServers(servers);
+                servers = filter.getFilteredListOfServers(servers); /* 过滤：根据规则，屏蔽掉一些不要的server*/
                 LOGGER.debug("Filtered List of Servers for {} obtained from Discovery client: {}",
                         getIdentifier(), servers);
             }

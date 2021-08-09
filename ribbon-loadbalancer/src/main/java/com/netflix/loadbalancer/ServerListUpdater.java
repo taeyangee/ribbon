@@ -6,7 +6,7 @@ package com.netflix.loadbalancer;
  *
  * @author David Liu
  */
-public interface ServerListUpdater {
+public interface ServerListUpdater { /* DynamicServerListLoadBalancer更新serverLIst的策略接口， 主要概念是UpdateAction，还有一些updater的管理状态 */
 
     /**
      * an interface for the updateAction that actually executes a server list update

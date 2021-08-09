@@ -35,7 +35,7 @@ import java.util.List;
  */
 public abstract class AbstractLoadBalancer implements ILoadBalancer {
     
-    public enum ServerGroup{
+    public enum ServerGroup{ /* 把server分成三组： 全部、在线的，不在线的*/
         ALL,
         STATUS_UP,
         STATUS_NOT_UP        
@@ -57,7 +57,7 @@ public abstract class AbstractLoadBalancer implements ILoadBalancer {
     public abstract List<Server> getServerList(ServerGroup serverGroup);
     
     /**
-     * Obtain LoadBalancer related Statistics
+     * Obtain LoadBalancer related Statistics 每个ILoadBalancer的统计数据
      */
     public abstract LoadBalancerStats getLoadBalancerStats();    
 }
